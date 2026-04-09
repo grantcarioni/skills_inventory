@@ -1,5 +1,5 @@
 :root {
-  /* Brand Colors */
+  /* Nutrition International Brand Colors (Guidelines 2024) */
   --ni-charcoal: #253746;
   --ni-carmine: #A4343A;
   --ni-sand: #F5F2EA;
@@ -8,87 +8,190 @@
   --ni-navy: #003B5C;
   --ni-white: #FFFFFF;
   
-  /* UI Colors */
-  --bg-primary: var(--ni-sand);
-  --bg-secondary: var(--ni-white);
+  /* UI Design Tokens */
+  --bg-app: var(--ni-sand);
+  --bg-sidebar: var(--ni-charcoal);
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(37, 55, 70, 0.1);
   --text-primary: var(--ni-charcoal);
   --text-secondary: rgba(37, 55, 70, 0.7);
+  --text-on-dark: var(--ni-sand);
   --accent: var(--ni-carmine);
-  --border: rgba(37, 55, 70, 0.1);
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   
-  /* Fonts */
-  --font-primary: 'Inter', system-ui, -apple-system, sans-serif; /* Fallback for Gibson */
-  --font-secondary: 'Lora', serif;
+  /* Shadows & Glassmorphism */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --glass: blur(12px) saturate(180%);
+  
+  /* Transitions */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.3s var(--ease);
 }
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: var(--font-primary);
-  background-color: var(--bg-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-app);
   color: var(--text-primary);
-  line-height: 1.5;
+  line-height: 1.6;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, .font-serif {
-  font-family: var(--font-secondary);
+h1, h2, h3, h4 {
+  font-family: 'Inter', serif; /* Gibson fallback */
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.dashboard-container {
-  max-width: 1400px;
-  margin: 0 auto;
+/* Layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background-color: var(--bg-sidebar);
+  color: var(--text-on-dark);
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
 }
 
+.main-content {
+  flex: 1;
+  padding: 2.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Components */
 .glass-card {
-  background: var(--bg-secondary);
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  background: var(--bg-card);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
   padding: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
 }
 
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(164, 52, 58, 0.2);
+}
+
+.hero-banner {
+  background: linear-gradient(rgba(37, 55, 70, 0.85), rgba(37, 55, 70, 0.7)), url('/src/assets/hero-bg.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 24px;
+  padding: 3rem;
+  color: var(--ni-white);
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tab-nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background: none;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: var(--transition);
+}
+
+.tab-btn.active {
+  color: var(--ni-carmine);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -0.6rem;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--ni-carmine);
+  border-radius: 99px;
 }
 
 .pill {
-  display: inline-flex;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pill-carmine { background: rgba(164, 52, 58, 0.1); color: var(--ni-carmine); }
+.pill-navy { background: rgba(0, 59, 92, 0.1); color: var(--ni-navy); }
+.pill-teal { background: rgba(0, 125, 132, 0.1); color: var(--ni-teal); }
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s var(--ease) forwards;
+}
+
+/* Skills Matrix Specifics */
+.matrix-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--card-border);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.matrix-cell {
+  background: white;
+  padding: 0.75rem;
+  display: flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: var(--ni-charcoal);
-  color: var(--ni-white);
+  justify-content: center;
+  min-width: 40px;
+  font-size: 0.8rem;
 }
 
-.pill-carmine { background: var(--ni-carmine); }
-.pill-teal { background: var(--ni-teal); }
-.pill-navy { background: var(--ni-navy); }
+.matrix-level-0 { background: #f9f9f9; }
+.matrix-level-1 { background: #ffebee; color: #c62828; }
+.matrix-level-2 { background: #ffcdd2; color: #c62828; }
+.matrix-level-3 { background: #ef9a9a; color: #b71c1c; }
+.matrix-level-4 { background: #e57373; color: #b71c1c; }
+.matrix-level-5 { background: #d32f2f; color: white; font-weight: bold; }
 
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.2rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.btn-primary {
-  background: var(--ni-carmine);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #8e2d32;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .sidebar { width: 80px; padding: 1.5rem 0.5rem; }
+  .sidebar span { display: none; }
 }
