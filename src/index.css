@@ -1,0 +1,94 @@
+:root {
+  /* Brand Colors */
+  --ni-charcoal: #253746;
+  --ni-carmine: #A4343A;
+  --ni-sand: #F5F2EA;
+  --ni-sunlight: #F6A900;
+  --ni-teal: #007D84;
+  --ni-navy: #003B5C;
+  --ni-white: #FFFFFF;
+  
+  /* UI Colors */
+  --bg-primary: var(--ni-sand);
+  --bg-secondary: var(--ni-white);
+  --text-primary: var(--ni-charcoal);
+  --text-secondary: rgba(37, 55, 70, 0.7);
+  --accent: var(--ni-carmine);
+  --border: rgba(37, 55, 70, 0.1);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  
+  /* Fonts */
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif; /* Fallback for Gibson */
+  --font-secondary: 'Lora', serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-secondary);
+}
+
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.glass-card {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: var(--ni-charcoal);
+  color: var(--ni-white);
+}
+
+.pill-carmine { background: var(--ni-carmine); }
+.pill-teal { background: var(--ni-teal); }
+.pill-navy { background: var(--ni-navy); }
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--ni-carmine);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #8e2d32;
+}
