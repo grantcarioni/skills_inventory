@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, MapPin, Briefcase, GraduationCap, Globe, Mail, Linkedin, ExternalLink, Award, Target } from 'lucide-react';
+import { X, MapPin, Briefcase, GraduationCap, Globe, Linkedin, Award, Target } from 'lucide-react';
 import { Employee } from '../types';
 import SkillRadar from './SkillRadar';
 import ProficiencyBadge from './ProficiencyBadge';
