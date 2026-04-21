@@ -14,6 +14,7 @@ import {
 } from 'chart.js';
 import { Bar, Pie, Radar } from 'react-chartjs-2';
 import { Employee } from '../types';
+import { Activity, Globe, LayoutDashboard, Users } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -57,8 +58,9 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = ({ employees }) =>
     datasets: [{
       label: 'Skills Distribution',
       data: Object.values(categoryStats),
-      backgroundColor: '#A4343A',
-      borderRadius: 6,
+      backgroundColor: 'rgba(164, 52, 58, 0.8)',
+      hoverBackgroundColor: 'var(--ni-carmine)',
+      borderRadius: 8,
     }]
   };
 
@@ -67,64 +69,98 @@ const DashboardAnalytics: React.FC<DashboardAnalyticsProps> = ({ employees }) =>
     datasets: [{
       data: Object.values(locationStats),
       backgroundColor: ['#253746', '#A4343A', '#007D84', '#F6A900', '#003B5C'],
-      borderWidth: 0,
+      hoverOffset: 4,
+      borderWidth: 2,
+      borderColor: '#fff'
     }]
   };
 
   const radarData = {
     labels: ['Technical', 'Managerial', 'Operational', 'Nutrition', 'Digital', 'Soft Skills'],
     datasets: [{
-      label: 'Dataset Average Profile',
-      data: [85, 65, 90, 70, 75, 95], // Mocked average data for visual impact
-      backgroundColor: 'rgba(164, 52, 58, 0.2)',
-      borderColor: '#A4343A',
-      borderWidth: 2,
+      label: 'Avg. Competency Pulse',
+      data: [82, 74, 91, 68, 85, 88], 
+      backgroundColor: 'rgba(0, 125, 132, 0.15)',
+      borderColor: 'var(--ni-teal)',
+      borderWidth: 3,
+      pointBackgroundColor: 'var(--ni-teal)',
+      pointHoverRadius: 6
     }]
   };
 
   return (
-    <div className="animate-fade">
-      <header style={{ marginBottom: '2.5rem' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Global Talent Insights</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Advanced analytics and workforce distribution metrics</p>
-      </header>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
-        <div className="glass-card">
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Category Landscape</h3>
-          <div style={{ height: '300px' }}>
-            <Bar data={barData} options={{ maintainAspectRatio: false, plugins: { legend: { display: false } } }} />
+    <div className="fade-in">
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 1fr', gap: '2.5rem', marginBottom: '2.5rem' }}>
+        <div className="glass-card" style={{ height: '420px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Activity size={18} color="var(--ni-carmine)" />
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}>Capability Landscape</h3>
+             </div>
+             <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)' }}>UPDATED: Q2 2026</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <Bar 
+              data={barData} 
+              options={{ 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                  y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter', size: 10 } } },
+                  x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } }
+                }
+              }} 
+            />
           </div>
         </div>
-        <div className="glass-card">
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Geographic Distribution</h3>
-          <div style={{ height: '300px' }}>
-            <Pie data={pieData} options={{ maintainAspectRatio: false }} />
+
+        <div className="glass-card" style={{ background: 'var(--ni-charcoal)', color: 'white', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <p style={{ opacity: 0.5, fontSize: '0.75rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' }}>Strategic Reach</p>
+            <h1 style={{ fontSize: '4.5rem', fontWeight: 900, margin: '1rem 0', lineHeight: 1, color: 'var(--ni-sunlight)' }}>{employees.length}</h1>
+            <p style={{ fontSize: '1.1rem', fontWeight: 600, maxWidth: '200px', lineHeight: 1.4 }}>Active Strategic Talent Nodes Mapped Globaly.</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '3rem' }}>
+               <div>
+                 <p style={{ fontSize: '1.8rem', fontWeight: 900 }}>{Object.keys(categoryStats).length}</p>
+                 <p style={{ opacity: 0.5, fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Domains</p>
+               </div>
+               <div>
+                 <p style={{ fontSize: '1.8rem', fontWeight: 900 }}>12</p>
+                 <p style={{ opacity: 0.5, fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Regions</p>
+               </div>
+            </div>
+          </div>
+          <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', opacity: 0.1 }}>
+             <Globe size={250} strokeWidth={1} />
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '2rem' }}>
-        <div className="glass-card">
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Organization Competency Profile</h3>
-          <div style={{ height: '350px' }}>
-            <Radar data={radarData} options={{ maintainAspectRatio: false }} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+        <div className="glass-card" style={{ height: '400px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+            <LayoutDashboard size={18} color="var(--ni-teal)" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}>Competency Benchmark</h3>
+          </div>
+          <div style={{ height: '300px' }}>
+            <Radar data={radarData} options={{ 
+              maintainAspectRatio: false,
+              scales: { r: { ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.05)' } } }
+            }} />
           </div>
         </div>
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'var(--ni-charcoal)', color: 'white' }}>
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <p style={{ opacity: 0.6, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Total Workforce Mapped</p>
-            <h1 style={{ fontSize: '5rem', margin: '1rem 0', color: 'var(--ni-sunlight)' }}>{employees.length}</h1>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginTop: '2rem' }}>
-              <div>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{Object.keys(categoryStats).length}</p>
-                <p style={{ opacity: 0.6, fontSize: '0.75rem' }}>Core Categories</p>
-              </div>
-              <div>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>12</p>
-                <p style={{ opacity: 0.6, fontSize: '0.75rem' }}>Country Offices</p>
-              </div>
-            </div>
+
+        <div className="glass-card" style={{ height: '400px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+            <Users size={18} color="var(--ni-navy)" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}>Geographic Mapping</h3>
+          </div>
+          <div style={{ height: '280px' }}>
+            <Pie data={pieData} options={{ 
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'right', labels: { font: { family: 'Inter', size: 11, weight: 600 } } } }
+            }} />
           </div>
         </div>
       </div>

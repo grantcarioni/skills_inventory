@@ -2,33 +2,16 @@ import { useState, useMemo } from 'react';
 import { 
   Search, MapPin, Briefcase, ExternalLink, Filter, 
   LayoutDashboard, Table as TableIcon, Activity, Users,
-  ChevronRight
+  ChevronRight, Sparkles, Target
 } from 'lucide-react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip as ChartTooltip,
-  Legend,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
 
 import skillsDataRaw from './data/skills_inventory.json';
 import { Employee } from './types';
 import ProficiencyBadge from './components/ProficiencyBadge';
 import SkillsMatrix from './components/SkillsMatrix';
 import GapAnalysis from './components/GapAnalysis';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  ChartTooltip,
-  Legend
-);
+import DashboardAnalytics from './components/DashboardAnalytics';
+import EmployeeModal from './components/EmployeeModal';
 
 const skillsData = (skillsDataRaw || []) as Employee[];
 
@@ -37,6 +20,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
   // Proficiency Mapping Logic
   const getProficiency = (exp: string): number => {
@@ -69,64 +53,10 @@ function App() {
     });
   }, [searchTerm, selectedCategory]);
 
-  const chartData = useMemo(() => {
-    const stats: Record<string, number> = {};
-    skillsData.forEach(emp => {
-      emp.skills?.forEach(s => {
-        if (s.category) stats[s.category] = (stats[s.category] || 0) + 1;
-      });
-    });
-    return {
-      labels: Object.keys(stats),
-      datasets: [{
-        label: 'Skills Count',
-        data: Object.values(stats),
-        backgroundColor: '#A4343A',
-        borderRadius: 6,
-      }],
-    };
-  }, []);
-
   const renderContent = () => {
     switch (activeTab) {
       case 'Overview':
-        return (
-          <div className="fade-in">
-            <section style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem', marginBottom: '2.5rem' }}>
-              <div className="glass-card" style={{ height: '400px' }}>
-                <h3 style={{ marginBottom: '1.5rem' }}>Organizational Skills Landscape</h3>
-                <Bar 
-                  data={chartData} 
-                  options={{ 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                      y: { beginAtZero: true, grid: { display: false } },
-                      x: { grid: { display: false } }
-                    }
-                  }} 
-                />
-              </div>
-              <div className="glass-card">
-                <h3 style={{ marginBottom: '1.5rem' }}>Global Talent Stats</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  <div style={{ padding: '1.25rem', background: 'rgba(37, 55, 70, 0.03)', borderRadius: '12px' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Total Workforce</p>
-                    <p style={{ fontSize: '2.25rem', fontWeight: 800 }}>{skillsData.length}</p>
-                  </div>
-                  <div style={{ padding: '1.25rem', background: 'rgba(37, 55, 70, 0.03)', borderRadius: '12px' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Strategic Skills</p>
-                    <p style={{ fontSize: '2.25rem', fontWeight: 800 }}>{new Set(skillsData.flatMap(e => (e.skills || []).map(s => s.skill))).size}</p>
-                  </div>
-                  <div style={{ padding: '1.25rem', background: 'rgba(0, 125, 132, 0.05)', borderRadius: '12px', borderLeft: '4px solid var(--ni-teal)' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--ni-teal)', fontWeight: 700 }}>Talent Mobility</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 700 }}>+12% vs Q3</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-        );
+        return <DashboardAnalytics employees={skillsData} />;
       case 'Matrix':
         return <SkillsMatrix employees={filteredEmployees} />;
       case 'Gaps':
@@ -134,21 +64,30 @@ function App() {
       case 'Discovery':
         return (
           <div className="fade-in">
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '3rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
-                <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={20} />
+                <Search style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ni-carmine)' }} size={20} />
                 <input 
                   type="text" 
                   placeholder="Search by name, skill, or role..." 
-                  style={{ width: '100%', padding: '1rem 1rem 1rem 3.5rem', borderRadius: '14px', border: '1px solid var(--card-border)', fontSize: '1rem', background: 'white' }}
+                  style={{ 
+                    width: '100%', padding: '1.2rem 1.2rem 1.2rem 4rem', borderRadius: '18px', 
+                    border: '1px solid var(--card-border)', fontSize: '1rem', background: 'white',
+                    boxShadow: 'var(--shadow-sm)', outline: 'none', transition: 'var(--transition)'
+                  }}
+                  className="search-input"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <div style={{ position: 'relative' }}>
-                <Filter style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={18} />
+              <div style={{ position: 'relative', minWidth: '240px' }}>
+                <Filter style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ni-teal)' }} size={18} />
                 <select 
-                  style={{ padding: '1rem 1rem 1rem 3rem', borderRadius: '14px', border: '1px solid var(--card-border)', appearance: 'none', background: 'white', minWidth: '220px', fontWeight: 600 }}
+                  style={{ 
+                    width: '100%', padding: '1.2rem 1.2rem 1.2rem 3.5rem', borderRadius: '18px', 
+                    border: '1px solid var(--card-border)', appearance: 'none', background: 'white', 
+                    fontWeight: 700, fontSize: '0.95rem', boxShadow: 'var(--shadow-sm)', cursor: 'pointer'
+                  }}
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -157,46 +96,68 @@ function App() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '2rem' }}>
-              {filteredEmployees.slice(0, 50).map((emp, idx) => (
-                <div key={idx} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2.5rem' }}>
+              {filteredEmployees.map((emp, idx) => (
+                <div key={idx} className="glass-card fade-in" style={{ 
+                  display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '2.5rem',
+                  border: '1px solid var(--card-border)', background: 'white'
+                }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <h2 style={{ fontSize: '1.35rem', color: 'var(--ni-charcoal)', marginBottom: '0.25rem' }}>{emp.name}</h2>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--ni-carmine)', fontWeight: 700 }}>{emp.title}</p>
+                      <h2 style={{ fontSize: '1.6rem', color: 'var(--ni-charcoal)', marginBottom: '0.25rem', fontWeight: 900 }}>{emp.name}</h2>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                         <Sparkles size={14} color="var(--ni-sunlight)" strokeWidth={3} />
+                         <p style={{ fontSize: '0.95rem', color: 'var(--ni-carmine)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{emp.title}</p>
+                      </div>
                     </div>
                     {emp.linkedInUrl && emp.linkedInUrl !== 'Not found' && (
-                      <a href={emp.linkedInUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ni-navy)', padding: '8px', background: 'rgba(0, 59, 92, 0.05)', borderRadius: '8px' }}>
-                        <ExternalLink size={18} />
+                      <a href={emp.linkedInUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ni-navy)', padding: '10px', background: 'rgba(0, 59, 92, 0.05)', borderRadius: '12px', transition: 'var(--transition)' }}>
+                        <ExternalLink size={20} />
                       </a>
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '1rem' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={16} /> {emp.location}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Briefcase size={16} /> {emp.totalExperience || 'N/A'} exp</span>
+                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)', borderBottom: '1px solid var(--ni-charcoal-muted)', paddingBottom: '1.5rem', fontWeight: 600 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={18} color="var(--ni-teal)" /> {emp.location || 'Global'}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Briefcase size={18} color="var(--ni-teal)" /> {emp.totalExperience || 'N/A'} of Strategic Exp.</span>
                   </div>
 
                   <div>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>Core Capabilities</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem' }}>
+                       <Target size={16} color="var(--ni-carmine)" />
+                       <p style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '1.5px' }}>Capability Profile</p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       {emp.skills?.slice(0, 3).map((s, si) => (
-                        <div key={si} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{s.skill}</span>
+                        <div key={si} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)', paddingBottom: '0.75rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '0.95rem', fontWeight: 700 }}>{s.skill}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--ni-teal)', fontWeight: 800 }}>{s.category}</span>
+                          </div>
                           <ProficiencyBadge level={getProficiency(s.experience)} label={s.experience} />
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ marginTop: 'auto', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       {emp.languages?.map((l, li) => (
-                        <span key={li} title={l.language} style={{ padding: '4px 8px', borderRadius: '4px', background: 'var(--ni-sand)', fontSize: '0.7rem', fontWeight: 700 }}>{l.language.substring(0,2).toUpperCase()}</span>
+                        <span key={li} title={l.language} style={{ padding: '6px 12px', borderRadius: '8px', background: 'var(--ni-sand)', fontSize: '0.75rem', fontWeight: 800, border: '1px solid rgba(0,0,0,0.05)' }}>{l.language.substring(0,2).toUpperCase()}</span>
                       ))}
                     </div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--ni-navy)', background: 'none', border: 'none', fontWeight: 700 }}>
-                      View Profile <ChevronRight size={14} />
+                    <button 
+                      onClick={() => setSelectedEmployee(emp)}
+                      style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', 
+                        color: 'var(--ni-navy)', background: 'var(--ni-charcoal-muted)', 
+                        border: 'none', fontWeight: 800, padding: '10px 20px', borderRadius: '12px',
+                        cursor: 'pointer', transition: 'var(--transition)'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 59, 92, 0.1)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'var(--ni-charcoal-muted)'}
+                    >
+                      View Intelligence <ChevronRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -212,42 +173,64 @@ function App() {
   return (
     <div className="app-layout">
       {/* Sidebar Navigation */}
-      <aside className="sidebar" style={{ width: sidebarOpen ? '280px' : '80px', transition: 'width 0.3s ease' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '3rem', cursor: 'pointer' }} onClick={() => setSidebarOpen(!sidebarOpen)}>
-          <div style={{ width: '40px', height: '40px', background: 'var(--ni-carmine)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: '1.2rem' }}>X</div>
-          {sidebarOpen && <div style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em' }}>SkillsMap</div>}
+      <aside className="sidebar" style={{ width: sidebarOpen ? '280px' : '88px', transition: 'width 0.4s var(--ease)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '4rem', cursor: 'pointer', padding: '0 0.5rem' }} onClick={() => setSidebarOpen(!sidebarOpen)}>
+          <div style={{ 
+            width: '42px', height: '42px', background: 'linear-gradient(135deg, var(--ni-carmine), #82292e)', 
+            borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            boxShadow: '0 8px 16px rgba(164, 52, 58, 0.3)', color: 'white', fontWeight: 900, fontSize: '1.4rem' 
+          }}>S</div>
+          {sidebarOpen && (
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1 }}>SkillsMap</div>
+              <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>Strategic Assets</div>
+            </div>
+          )}
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
           {[
-            { id: 'Overview', icon: LayoutDashboard, label: 'Dashboard' },
-            { id: 'Matrix', icon: TableIcon, label: 'Visual Matrix' },
+            { id: 'Overview', icon: LayoutDashboard, label: 'Insights Explorer' },
+            { id: 'Matrix', icon: TableIcon, label: 'Capability Matrix' },
             { id: 'Discovery', icon: Users, label: 'Talent Discovery' },
-            { id: 'Gaps', icon: Activity, label: 'Gap Analysis' },
+            { id: 'Gaps', icon: Activity, label: 'Strategic Gaps' },
           ].map(item => (
             <button 
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              className={`sidebar-nav-btn ${activeTab === item.id ? 'active' : ''}`}
               style={{
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
-                background: activeTab === item.id ? 'var(--ni-carmine)' : 'transparent',
-                color: activeTab === item.id ? 'white' : 'rgba(245, 242, 234, 0.6)',
-                border: 'none', textAlign: 'left', width: '100%', cursor: 'pointer', transition: 'var(--transition)'
+                display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 18px', borderRadius: '14px',
+                background: activeTab === item.id ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === item.id ? 'white' : 'rgba(245, 242, 234, 0.5)',
+                border: 'none', textAlign: 'left', width: '100%', cursor: 'pointer', transition: 'var(--transition)',
+                position: 'relative', overflow: 'hidden'
               }}
             >
-              <item.icon size={20} />
-              {sidebarOpen && <span style={{ fontWeight: 600 }}>{item.label}</span>}
+              {activeTab === item.id && (
+                <div style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: '4px', background: 'var(--ni-carmine)', borderRadius: '0 4px 4px 0' }} />
+              )}
+              <item.icon size={22} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+              {sidebarOpen && <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.label}</span>}
             </button>
           ))}
         </nav>
 
-        <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--ni-teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>GC</div>
+        <div style={{ marginTop: 'auto', padding: '1.5rem 0' }}>
+          <div className="glass-card" style={{ 
+            background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', 
+            padding: sidebarOpen ? '1rem' : '0.5rem', borderRadius: '16px', display: 'flex', 
+            alignItems: 'center', gap: '12px', backdropFilter: 'none'
+          }}>
+            <div style={{ 
+              width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--ni-teal), var(--ni-navy))', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem', color: 'white',
+              boxShadow: '0 4px 12px rgba(0, 125, 132, 0.2)', flexShrink: 0
+            }}>GC</div>
             {sidebarOpen && (
-              <div>
-                <p style={{ fontSize: '0.85rem', fontWeight: 700 }}>Grant Carioni</p>
-                <p style={{ fontSize: '0.7rem', color: 'rgba(245,242,234,0.5)' }}>Product Admin</p>
+              <div style={{ overflow: 'hidden' }}>
+                <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>Grant Carioni</p>
+                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Design Manager</p>
               </div>
             )}
           </div>
@@ -257,14 +240,25 @@ function App() {
       {/* Main Content Area */}
       <main className="main-content">
         <header className="hero-banner">
-          <div style={{ maxWidth: '600px' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '2px', color: 'var(--ni-sunlight)', textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Nutrition International</span>
-            <h1 style={{ fontSize: '3rem', marginBottom: '1rem', lineHeight: 1.1 }}>Unlock the Strategic <span style={{ color: 'var(--ni-sunlight)' }}>Potential</span> of Your Talent.</h1>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Global skills inventory and gap analysis platform for high-impact organizational growth.</p>
+          <div style={{ maxWidth: '650px', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+              <span style={{ width: '30px', height: '2px', background: 'var(--ni-sunlight)' }}></span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: '3px', color: 'var(--ni-sunlight)', textTransform: 'uppercase' }}>Nutrition International</span>
+            </div>
+            <h1 style={{ fontSize: '3.5rem', marginBottom: '1.5rem', lineHeight: 1.05, fontWeight: 900 }}>
+              Optimize Your <span className="brand-serif" style={{ color: 'var(--ni-sunlight)', fontStyle: 'italic', fontWeight: 400 }}>Strategic</span> Talent Landscape.
+            </h1>
+            <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.85)', fontWeight: 500, lineHeight: 1.5 }}>
+              A high-precision framework for global skills inventory, talent discovery, and organizational gap intelligence.
+            </p>
           </div>
-          <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: 'white' }}>
-            <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.5rem' }}>Active Talent Nodes</p>
-            <p style={{ fontSize: '2rem', fontWeight: 800 }}>{skillsData.length}</p>
+          <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: 'white', padding: '1.5rem 2rem', minWidth: '220px' }}>
+            <Users size={32} style={{ color: 'var(--ni-sunlight)', marginBottom: '1rem' }} />
+            <p style={{ fontSize: '0.9rem', opacity: 0.7, fontWeight: 600, marginBottom: '0.25rem' }}>Global Talent Nodes</p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900 }}>{skillsData.length}</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--ni-teal)', fontWeight: 800 }}>ACTIVE</span>
+            </div>
           </div>
         </header>
 
@@ -275,15 +269,21 @@ function App() {
               className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'Overview' ? 'Insights Dashboard' : tab}
+              {tab === 'Overview' ? 'Insights Explorer' : tab}
             </button>
           ))}
         </div>
 
-        <section>
+        <section style={{ marginBottom: '4rem' }}>
           {renderContent()}
         </section>
       </main>
+
+      {/* Talent Intelligence Modal */}
+      <EmployeeModal 
+        employee={selectedEmployee} 
+        onClose={() => setSelectedEmployee(null)} 
+      />
     </div>
   );
 }
